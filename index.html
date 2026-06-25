@@ -207,6 +207,15 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div id="page-module" class="hidden">
 <div class="info-bar" id="moduleInfo"></div>
 <div class="search-box">
+<select id="searchField" onchange="applyFilter()" style="min-width:120px">
+<option value="auto">🔍 بحث ذكي</option>
+<option value="car">رقم السيارة</option>
+<option value="driver">اسم السائق</option>
+<option value="company">الشركة</option>
+<option value="client">اسم العميل</option>
+<option value="invoice">رقم الفاتورة</option>
+<option value="all">كل الأعمدة</option>
+</select>
 <input type="text" id="moduleSearch" placeholder="🔍 بحث..." onkeyup="debounceSearch()">
 <select id="modulePerPage" onchange="renderModule()"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select>
 <button class="btn btn-primary" onclick="exportCSV()">📥 تصدير CSV</button>
@@ -446,7 +455,36 @@ applyFilter();
 
 function applyFilter() {
 const search = (document.getElementById('moduleSearch').value||'').toLowerCase();
-filteredData = search ? allModuleData.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(search))) : [...allModuleData];
+const field = document.getElementById('searchField').value;
+if(!search){filteredData=[...allModuleData];}
+else if(field==='all'){
+filteredData = allModuleData.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(search)));
+}else if(field==='car'){
+const carCols=currentModule==='operations'?['رقم السيارة (الأصالة)','رقم السيارة (AZ)','رقم السيارة (التشغيلية)']:['رقم السيارة','رقم السياره'];
+filteredData = allModuleData.filter(r=>carCols.some(c=>String(r[c]||'').toLowerCase().includes(search)));
+}else if(field==='driver'){
+filteredData = allModuleData.filter(r=>String(r['اسم السائق']||'').toLowerCase().includes(search));
+}else if(field==='company'){
+filteredData = allModuleData.filter(r=>String(r['الشركة']||r['اسم الشركة']||'').toLowerCase().includes(search));
+}else if(field==='client'){
+filteredData = allModuleData.filter(r=>String(r['اسم العميل']||r['اسم المؤمن له']||'').toLowerCase().includes(search));
+}else if(field==='invoice'){
+filteredData = allModuleData.filter(r=>String(r['رقم الفاتورة']||r['رقم الوثيقة']||'').toLowerCase().includes(search));
+}else{
+// Auto - smart search by module
+if(currentModule==='operations'){
+const carCols=['رقم السيارة (الأصالة)','رقم السيارة (AZ)','رقم السيارة (التشغيلية)'];
+filteredData = allModuleData.filter(r=>carCols.some(c=>String(r[c]||'').toLowerCase().includes(search)));
+}else if(currentModule==='maintenance'){
+filteredData = allModuleData.filter(r=>String(r['رقم السيارة']||'').toLowerCase().includes(search));
+}else if(currentModule==='insurance_axa'||currentModule==='insurance_orient'){
+filteredData = allModuleData.filter(r=>String(r['رقم السيارة']||'').toLowerCase().includes(search));
+}else if(currentModule==='sales_invoices'){
+filteredData = allModuleData.filter(r=>String(r['رقم السياره']||'').toLowerCase().includes(search));
+}else{
+filteredData = allModuleData.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(search)));
+}
+}
 if(sortState.col){const c=sortState.col,d=sortState.dir;try{filteredData.sort((a,b)=>{const va=parseFloat(a[c])||0,vb=parseFloat(b[c])||0;return d==='asc'?va-vb:vb-va;});}catch{filteredData.sort((a,b)=>d==='asc'?String(a[c]||'').localeCompare(String(b[c]||'')):String(b[c]||'').localeCompare(String(a[c]||'')));}}
 currentPage=1;renderModule();
 }
