@@ -3,8 +3,14 @@ __pycache__/
 *.pyo
 .env
 *.xlsx
-users.json
-audit_log.json
 .DS_Store
 Thumbs.db
 *.log
+app.py
+auth.py
+convert_excel.py
+add_users.py
+requirements.txt
+start.sh
+users.json
+audit_log.json
