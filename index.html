@@ -459,8 +459,12 @@ const start = (currentPage-1)*perPage, pageData = filteredData.slice(start, star
 
 document.getElementById('moduleInfo').innerHTML = `<span>📊 إجمالي: <strong>${total.toLocaleString()}</strong></span><span>📄 صفحة: <strong>${currentPage}/${pages}</strong></span>${PROTECTED.has(currentModule)?'<span class="badge-protected">🔒 محمي</span>':''}`;
 
-document.getElementById('moduleHead').innerHTML = '<tr>'+currentColumns.map(c=>`<th onclick="toggleSort('${c}')">${c}${sortState.col===c?(sortState.dir==='asc'?' ▲':' ▼'):''}</th>`).join('')+'</tr>';
-document.getElementById('moduleBody').innerHTML = pageData.length ? pageData.map(row=>'<tr>'+currentColumns.map(c=>`<td title="${(row[c]||'').toString().replace(/"/g,'&quot;')}">${row[c]||''}</td>`).join('')+'</tr>').join('') : `<tr><td colspan="${currentColumns.length}" style="text-align:center;padding:30px;color:var(--text2)">لا توجد بيانات</td></tr>`;
+const canEdit2 = currentUser && currentUser.role === 'editor';
+document.getElementById('moduleHead').innerHTML = '<tr>'+currentColumns.map(c=>`<th onclick="toggleSort('${c}')">${c}${sortState.col===c?(sortState.dir==='asc'?' ▲':' ▼'):''}</th>`).join('')+(canEdit2?'<th>إجراءات</th>':'')+'</tr>';
+document.getElementById('moduleBody').innerHTML = pageData.length ? pageData.map((row,idx)=>{
+const globalIdx = start + idx;
+return '<tr>'+currentColumns.map(c=>`<td title="${(row[c]||'').toString().replace(/"/g,'&quot;')}">${row[c]||''}</td>`).join('')+(canEdit2?`<td><button class="btn btn-sm btn-outline-primary" onclick="editRecord(${globalIdx})" title="تعديل"><i class="fas fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${globalIdx})" title="حذف"><i class="fas fa-trash"></i></button></td>`:'')+'</tr>';
+}).join('') : `<tr><td colspan="${currentColumns.length}" style="text-align:center;padding:30px;color:var(--text2)">لا توجد بيانات</td></tr>`;
 
 const pg = document.getElementById('modulePagination');
 if(pages<=1){pg.innerHTML='';return;}
@@ -480,7 +484,11 @@ function exportCSV(){if(!filteredData.length)return;const csv=[currentColumns.jo
 
 function showAddModal(){
 const f=document.getElementById('addModalFields');f.innerHTML='';
+f.parentElement.querySelector('h4').innerHTML = '➕ إضافة سجل جديد';
 currentColumns.forEach(c=>{if(!c.startsWith('col_'))f.innerHTML+=`<label style="font-size:13px;font-weight:600;display:block;margin-bottom:2px">${c}</label><input type="text" data-field="${c}">`;});
+const saveBtn = f.parentElement.querySelector('.btn-primary');
+saveBtn.textContent = 'حفظ';
+saveBtn.onclick = submitAddRecord;
 document.getElementById('addModal').classList.remove('hidden');
 }
 function submitAddRecord(){
@@ -613,6 +621,45 @@ document.getElementById('analyticsTop').innerHTML=paired.map((p,i)=>`<div style=
 function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
 function showToast(msg,isErr=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(isErr?' error':'');setTimeout(()=>t.className='toast',3000);}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
+
+// ==================== EDIT/DELETE RECORDS ====================
+function deleteRecord(idx) {
+if(!confirm('هل تريد حذف هذا السجل؟')) return;
+allModuleData.splice(idx, 1);
+dataCache[currentModule] = allModuleData;
+logAudit('delete_record', currentUser.username, currentModule, `index ${idx}`);
+applyFilter();
+showToast('🗑️ تم الحذف');
+}
+
+function editRecord(idx) {
+const row = allModuleData[idx];
+if(!row) return;
+const f = document.getElementById('addModalFields');
+f.innerHTML = '';
+// Change modal title
+f.parentElement.querySelector('h4').innerHTML = '<i class="fas fa-edit"></i> تعديل سجل';
+currentColumns.forEach(c => {
+if(c.startsWith('col_')) return;
+f.innerHTML += `<label style="font-size:13px;font-weight:600;display:block;margin-bottom:2px">${c}</label><input type="text" data-field="${c}" value="${(row[c]||'').toString().replace(/"/g,'&quot;')}">`;
+});
+// Change save button behavior
+const saveBtn = f.parentElement.querySelector('.btn-primary');
+saveBtn.textContent = '💾 حفظ التعديل';
+saveBtn.onclick = function() {
+const inputs = f.querySelectorAll('input[data-field]');
+inputs.forEach(i => { row[i.getAttribute('data-field')] = i.value; });
+dataCache[currentModule] = allModuleData;
+logAudit('edit_record', currentUser.username, currentModule, `index ${idx}`);
+closeModal('addModal');
+applyFilter();
+showToast('✅ تم التعديل');
+saveBtn.textContent = 'حفظ';
+saveBtn.onclick = submitAddRecord;
+f.parentElement.querySelector('h4').innerHTML = '➕ إضافة سجل جديد';
+};
+document.getElementById('addModal').classList.remove('hidden');
+}
 </script>
 </body>
 </html>
