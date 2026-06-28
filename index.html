@@ -444,18 +444,18 @@ const counts = {};
 for(const m of mods) { counts[m] = (await loadData(m)).length; }
 const cards = document.getElementById('statsCards'); cards.innerHTML = '';
 const groups = [
-{icon:'🚗',label:'التشغيل',keys:['operations']},
-{icon:'💰',label:'العهد',keys:['treasury_main']},
-{icon:'🤝',label:'السلف',keys:['treasury_salaf']},
-{icon:'⛽',label:'عهد البنزين',keys:['treasury_fuel']},
-{icon:'🔧',label:'عهدة صيانة',keys:['treasury_maintenance']},
-{icon:'💳',label:'دفعات تحت الحساب',keys:['treasury_payments']}
+{icon:'🚗',label:'التشغيل',keys:['operations'],img:'operations.jpeg'},
+{icon:'💰',label:'العهد',keys:['treasury_main'],img:'treasury_main.jpeg'},
+{icon:'🤝',label:'السلف',keys:['treasury_salaf'],img:'treasury_main.jpeg'},
+{icon:'⛽',label:'عهد البنزين',keys:['treasury_fuel'],img:'treasury_main.jpeg'},
+{icon:'🔧',label:'عهدة صيانة',keys:['treasury_maintenance'],img:'maintenance.jpeg'},
+{icon:'💳',label:'دفعات تحت الحساب',keys:['treasury_payments'],img:'treasury_main.jpeg'}
 ];
 groups.forEach(g => {
 const total = g.keys.reduce((s,k)=>s+(counts[k]||0),0);
 if(total === 0) return;
 const div = document.createElement('div'); div.className='card-box stat-card';
-div.innerHTML = `<div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
+div.innerHTML = `${g.img ? `<img src="static/data/${g.img}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;margin-bottom:8px" onerror="this.outerHTML='<div class=icon>${g.icon}</div>'">` : `<div class="icon">${g.icon}</div>`}<div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
 div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
 cards.appendChild(div);
 });
@@ -471,7 +471,7 @@ const maintData = await loadData('treasury_maintenance');
 if(maintData.length){const m={};maintData.forEach(r=>{const d=r['التاريخ']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+(parseFloat(r['الاجمالي'])||0);}});const ml=Object.keys(m).sort().slice(-12),mv=ml.map(k=>m[k]);destroyChart('maintChart');charts.maintChart=new Chart(document.getElementById('maintChart'),{type:'bar',data:{labels:ml,datasets:[{label:'تكاليف الصيانة',data:mv,backgroundColor:'#ff6b35',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false}});}
 }
 
-async function loadDashboard() {
+sync function loadDashboard() {
 const mods = ['inventory_items','inventory_out','inventory_in','sales_invoices','maintenance','operations','treasury_main','insurance_axa','insurance_orient','treasury_fuel','bank_qnb_az','bank_qnb_asala'];
 const counts = {};
 for(const m of mods) { counts[m] = (await loadData(m)).length; }
@@ -480,14 +480,14 @@ const cards = document.getElementById('statsCards'); cards.innerHTML = '';
 const groups = [
 {icon:'📦',label:'الأصناف',keys:['inventory_items']},{icon:'📤',label:'منصرف',keys:['inventory_out']},
 {icon:'📥',label:'وارد',keys:['inventory_in']},{icon:'🧾',label:'فواتير المبيعات',keys:['sales_invoices']},
-{icon:'🔧',label:'الصيانة',keys:['maintenance']},{icon:'🚗',label:'التشغيل',keys:['operations']},
-{icon:'💰',label:'العهد',keys:['treasury_main']},{icon:'🛡️',label:'التأمين',keys:['insurance_axa','insurance_orient']},
+{icon:'🔧',label:'الصيانة',keys:['maintenance']},{icon:'🚗',label:'التشغيل',keys:['operations'],img:'operations.jpeg'},
+{icon:'💰',label:'العهد',keys:['treasury_main'],img:'treasury_main.jpeg'},{icon:'🛡️',label:'التأمين',keys:['insurance_axa','insurance_orient']},
 {icon:'🏦',label:'البنوك',keys:['bank_qnb_az','bank_qnb_asala']},{icon:'⛽',label:'البنزين',keys:['treasury_fuel']}
 ];
 groups.forEach(g => {
 const total = g.keys.reduce((s,k)=>s+(counts[k]||0),0);
 const div = document.createElement('div'); div.className='card-box stat-card';
-div.innerHTML = `<div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
+div.innerHTML = `${g.img ? `<img src="static/data/${g.img}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;margin-bottom:8px" onerror="this.outerHTML='<div class=icon>${g.icon}</div>'">` : `<div class="icon">${g.icon}</div>`}<div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
 div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
 cards.appendChild(div);
 });
