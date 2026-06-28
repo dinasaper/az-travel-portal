@@ -347,9 +347,10 @@ window.onload = () => { applyTheme(); };
 
 // ==================== AUTH ====================
 function doLogin() {
-if(!USERS['admin']) { localStorage.removeItem('az_users'); USERS = getUsers(); }
 const u = document.getElementById('loginUser').value.trim();
 const p = document.getElementById('loginPass').value;
+if (!u || !p) return;
+if (!USERS['admin']) { localStorage.removeItem('az_users'); USERS = getUsers(); }
 if (!USERS[u] || USERS[u].password !== p) {
 document.getElementById('loginError').style.display = 'block'; return;
 }
