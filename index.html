@@ -46,6 +46,10 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .search-box{display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;align-items:center}
 .search-box input,.search-box select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px}
 .search-box input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.15)}
+.col-filter-row th{padding:6px 8px;background:var(--primary-light);vertical-align:top}
+.col-filter-row input,.col-filter-row select{width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--card);color:var(--text);box-sizing:border-box}
+.col-filter-row input:focus,.col-filter-row select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,115,232,.15)}
+.col-filter-row select{max-height:28px;cursor:pointer}
 .badge-protected{background:var(--danger);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-right:5px}
 .badge-editor{background:var(--success);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px}
 .badge-viewer{background:var(--info);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px}
@@ -207,19 +211,10 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div id="page-module" class="hidden">
 <div class="info-bar" id="moduleInfo"></div>
 <div class="search-box">
-<select id="searchField" onchange="applyFilter()" style="min-width:120px">
-<option value="auto">🔍 بحث ذكي</option>
-<option value="car">رقم السيارة</option>
-<option value="driver">اسم السائق</option>
-<option value="company">الشركة</option>
-<option value="client">اسم العميل</option>
-<option value="invoice">رقم الفاتورة</option>
-<option value="all">كل الأعمدة</option>
-</select>
-<input type="text" id="moduleSearch" placeholder="🔍 بحث..." onkeyup="debounceSearch()">
 <select id="modulePerPage" onchange="renderModule()"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select>
 <button class="btn btn-primary" onclick="exportCSV()">📥 تصدير CSV</button>
 <button class="btn btn-success" id="addRecordBtn" onclick="showAddModal()" style="display:none">➕ إضافة سجل</button>
+<button class="btn btn-warning" onclick="clearAllFilters()">🗑️ مسح الفلاتر</button>
 </div>
 <div class="card-box">
 <div class="table-container"><table class="data-table" id="moduleTable"><thead id="moduleHead"></thead><tbody id="moduleBody"></tbody></table></div>
@@ -320,9 +315,9 @@ let allModuleData = [];
 let filteredData = [];
 let currentColumns = [];
 let currentPage = 1;
-let searchTimer = null;
 let charts = {};
 let sortState = {col:null,dir:'asc'};
+let columnFilters = {};
 const dataCache = {};
 
 const MODULE_AR = {
@@ -390,7 +385,7 @@ document.getElementById('page-module').classList.remove('hidden');
 document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
 const nav = document.querySelector(`[data-page="mod-${mod}"]`); if(nav) nav.classList.add('active');
 document.getElementById('pageTitle').textContent = MODULE_AR[mod]||mod;
-document.getElementById('moduleSearch').value = '';
+columnFilters = {};
 // Show add button only for editors on non-protected modules, or for any editor
 const canEdit = currentUser.role === 'editor';
 document.getElementById('addRecordBtn').style.display = canEdit ? '' : 'none';
@@ -454,39 +449,33 @@ applyFilter();
 }
 
 function applyFilter() {
-const search = (document.getElementById('moduleSearch').value||'').toLowerCase();
-const field = document.getElementById('searchField').value;
-if(!search){filteredData=[...allModuleData];}
-else if(field==='all'){
-filteredData = allModuleData.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(search)));
-}else if(field==='car'){
-const carCols=currentModule==='operations'?['رقم السيارة (الأصالة)','رقم السيارة (AZ)','رقم السيارة (التشغيلية)']:['رقم السيارة','رقم السياره'];
-filteredData = allModuleData.filter(r=>carCols.some(c=>String(r[c]||'').toLowerCase().includes(search)));
-}else if(field==='driver'){
-filteredData = allModuleData.filter(r=>String(r['اسم السائق']||'').toLowerCase().includes(search));
-}else if(field==='company'){
-filteredData = allModuleData.filter(r=>String(r['الشركة']||r['اسم الشركة']||'').toLowerCase().includes(search));
-}else if(field==='client'){
-filteredData = allModuleData.filter(r=>String(r['اسم العميل']||r['اسم المؤمن له']||'').toLowerCase().includes(search));
-}else if(field==='invoice'){
-filteredData = allModuleData.filter(r=>String(r['رقم الفاتورة']||r['رقم الوثيقة']||'').toLowerCase().includes(search));
-}else{
-// Auto - smart search by module
-if(currentModule==='operations'){
-const carCols=['رقم السيارة (الأصالة)','رقم السيارة (AZ)','رقم السيارة (التشغيلية)'];
-filteredData = allModuleData.filter(r=>carCols.some(c=>String(r[c]||'').toLowerCase().includes(search)));
-}else if(currentModule==='maintenance'){
-filteredData = allModuleData.filter(r=>String(r['رقم السيارة']||'').toLowerCase().includes(search));
-}else if(currentModule==='insurance_axa'||currentModule==='insurance_orient'){
-filteredData = allModuleData.filter(r=>String(r['رقم السيارة']||'').toLowerCase().includes(search));
-}else if(currentModule==='sales_invoices'){
-filteredData = allModuleData.filter(r=>String(r['رقم السياره']||'').toLowerCase().includes(search));
-}else{
-filteredData = allModuleData.filter(r=>Object.values(r).some(v=>String(v).toLowerCase().includes(search)));
-}
-}
+filteredData = allModuleData.filter(row => {
+return currentColumns.every(col => {
+const fv = columnFilters[col];
+if (!fv) return true;
+const cellVal = String(row[col] || '').toLowerCase();
+return cellVal.includes(fv.toLowerCase());
+});
+});
 if(sortState.col){const c=sortState.col,d=sortState.dir;try{filteredData.sort((a,b)=>{const va=parseFloat(a[c])||0,vb=parseFloat(b[c])||0;return d==='asc'?va-vb:vb-va;});}catch{filteredData.sort((a,b)=>d==='asc'?String(a[c]||'').localeCompare(String(b[c]||'')):String(b[c]||'').localeCompare(String(a[c]||'')));}}
 currentPage=1;renderModule();
+}
+
+function onColumnFilter(col, value) {
+if (value) columnFilters[col] = value;
+else delete columnFilters[col];
+applyFilter();
+}
+
+function clearAllFilters() {
+columnFilters = {};
+applyFilter();
+}
+
+function getUniqueValues(col) {
+const vals = new Set();
+allModuleData.forEach(r => { if (r[col] !== undefined && r[col] !== '') vals.add(String(r[col])); });
+return [...vals].sort((a,b) => a.localeCompare(b, 'ar'));
 }
 
 function renderModule() {
@@ -498,7 +487,23 @@ const start = (currentPage-1)*perPage, pageData = filteredData.slice(start, star
 document.getElementById('moduleInfo').innerHTML = `<span>📊 إجمالي: <strong>${total.toLocaleString()}</strong></span><span>📄 صفحة: <strong>${currentPage}/${pages}</strong></span>${PROTECTED.has(currentModule)?'<span class="badge-protected">🔒 محمي</span>':''}`;
 
 const canEdit2 = currentUser && currentUser.role === 'editor';
-document.getElementById('moduleHead').innerHTML = '<tr>'+currentColumns.map(c=>`<th onclick="toggleSort('${c}')">${c}${sortState.col===c?(sortState.dir==='asc'?' ▲':' ▼'):''}</th>`).join('')+(canEdit2?'<th>إجراءات</th>':'')+'</tr>';
+// Header row with sort
+let headHtml = '<tr>'+currentColumns.map(c=>`<th onclick="toggleSort('${c}')">${c}${sortState.col===c?(sortState.dir==='asc'?' ▲':' ▼'):''}</th>`).join('')+(canEdit2?'<th>إجراءات</th>':'')+'</tr>';
+// Filter row
+headHtml += '<tr class="col-filter-row">'+currentColumns.map(c => {
+const uniqueVals = getUniqueValues(c);
+const curVal = columnFilters[c] || '';
+if (uniqueVals.length > 0 && uniqueVals.length <= 100) {
+let opts = '<option value="">الكل</option>';
+uniqueVals.forEach(v => { opts += `<option value="${v.replace(/"/g,'&quot;')}" ${curVal===v?'selected':''}>${v.length>30?v.substring(0,30)+'...':v}</option>`; });
+return `<th><select onchange="onColumnFilter('${c}',this.value)">${opts}</select></th>`;
+} else {
+return `<th><input type="text" placeholder="فلتر..." value="${curVal.replace(/"/g,'&quot;')}" onkeyup="onColumnFilter('${c}',this.value)"></th>`;
+}
+}).join('')+(canEdit2?'<th></th>':'')+'</tr>';
+
+document.getElementById('moduleHead').innerHTML = headHtml;
+
 document.getElementById('moduleBody').innerHTML = pageData.length ? pageData.map((row,idx)=>{
 const globalIdx = start + idx;
 return '<tr>'+currentColumns.map(c=>`<td title="${(row[c]||'').toString().replace(/"/g,'&quot;')}">${row[c]||''}</td>`).join('')+(canEdit2?`<td><button class="btn btn-sm btn-outline-primary" onclick="editRecord(${globalIdx})" title="تعديل"><i class="fas fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${globalIdx})" title="حذف"><i class="fas fa-trash"></i></button></td>`:'')+'</tr>';
@@ -516,7 +521,6 @@ pg.innerHTML=h;
 }
 
 function goPage(p){currentPage=p;renderModule();}
-function debounceSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(applyFilter,300);}
 function toggleSort(col){if(sortState.col===col)sortState.dir=sortState.dir==='asc'?'desc':'asc';else{sortState.col=col;sortState.dir='asc';}applyFilter();}
 function exportCSV(){if(!filteredData.length)return;const csv=[currentColumns.join(',')].concat(filteredData.map(r=>currentColumns.map(h=>`"${(r[h]||'').toString().replace(/"/g,'""')}"`).join(','))).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'}));a.download=`${currentModule}.csv`;a.click();}
 
