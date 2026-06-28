@@ -111,7 +111,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div id="toast" class="toast"></div>
 
 <!-- LOGIN -->
-<div id="loginPage" class="login-page">
+<div id="loginPage" class="login-page hidden">
 <div class="login-box">
 <img src="static/data/logo.png" alt="AZ Travel" onerror="this.style.display='none'">
 <h3>🔐 تسجيل الدخول</h3>
@@ -123,7 +123,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 </div>
 
 <!-- APP -->
-<div id="appPage" class="hidden">
+<div id="appPage">
 <button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 <div class="sidebar">
 <div class="sidebar-logo">
@@ -339,6 +339,7 @@ localStorage.setItem('az_users', JSON.stringify(users));
 }
 
 let USERS = getUsers();
+currentUser = {username:"admin", password:"admin123", full_name:"مدير النظام", role:"editor"};
 if (!USERS['admin'] || USERS['admin'].password !== 'admin123') {
 localStorage.removeItem('az_users');
 USERS = getUsers();
