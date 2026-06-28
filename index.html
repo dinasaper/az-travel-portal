@@ -339,11 +339,6 @@ localStorage.setItem('az_users', JSON.stringify(users));
 }
 
 let USERS = getUsers();
-currentUser = {username:"admin", password:"admin123", full_name:"مدير النظام", role:"editor"};
-if (!USERS['admin'] || USERS['admin'].password !== 'admin123') {
-localStorage.removeItem('az_users');
-USERS = getUsers();
-}
 let currentUser = {username:'admin', full_name:'مدير النظام', role:'editor'};
 let theme = localStorage.getItem('az_theme') || 'light';
 let currentModule = '';
