@@ -35,11 +35,14 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .btn-theme{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
 .btn-theme:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
 .card-box{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);transition:all .3s}
-.stat-card{text-align:center;padding:25px 15px;cursor:pointer}
+.stat-card{text-align:center;padding:0;cursor:pointer;position:relative;overflow:hidden;min-height:140px;display:flex;flex-direction:column;justify-content:flex-end}
 .stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 25px rgba(0,0,0,.15)}
+.stat-card .stat-bg{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;transition:transform .3s}
+.stat-card:hover .stat-bg{transform:scale(1.08)}
+.stat-card .stat-overlay{position:relative;z-index:1;background:linear-gradient(transparent,rgba(0,0,0,.7));padding:20px 10px 15px;border-radius:0 0 12px 12px}
 .stat-card .icon{font-size:32px;margin-bottom:10px}
-.stat-card .num{font-size:28px;font-weight:800;color:var(--primary)}
-.stat-card .label{font-size:13px;color:var(--text2);margin-top:5px}
+.stat-card .num{font-size:28px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.stat-card .label{font-size:13px;color:rgba(255,255,255,.9);margin-top:5px}
 .table-container{overflow-x:auto;margin-top:15px;overflow-y:auto;max-height:70vh;-webkit-overflow-scrolling:touch}
 .table-container::-webkit-scrollbar{height:10px}
 .table-container::-webkit-scrollbar-track{background:var(--border);border-radius:5px}
@@ -455,7 +458,11 @@ groups.forEach(g => {
 const total = g.keys.reduce((s,k)=>s+(counts[k]||0),0);
 if(total === 0) return;
 const div = document.createElement('div'); div.className='card-box stat-card';
-div.innerHTML = `${g.img ? `<img src="static/data/${g.img}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;margin-bottom:8px" onerror="this.outerHTML='<div class=icon>${g.icon}</div>'">` : `<div class="icon">${g.icon}</div>`}<div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
+if(g.img) {
+div.innerHTML = `<img src="static/data/${g.img}" class="stat-bg" onerror="this.style.display='none'"><div class="stat-overlay"><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div></div>`;
+} else {
+div.innerHTML = `<div class="stat-overlay"><div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div></div>`;
+}
 div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
 cards.appendChild(div);
 });
