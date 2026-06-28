@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{--bg:#f5f7fa;--card:#fff;--text:#1a1a2e;--text2:#555;--border:#e0e0e0;--primary:#1a73e8;--primary-light:#e8f0fe;--accent:#ff6b35;--sidebar:#1a1a2e;--sidebar-text:#b0b0c0;--sidebar-active:#fff;--sidebar-bg-active:#1a73e8;--shadow:0 2px 12px rgba(0,0,0,.08);--table-stripe:#f8f9fa;--success:#28a745;--danger:#dc3545;--warning:#ffc107;--info:#17a2b8}
 [data-theme="dark"]{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--text2:#8b949e;--border:#30363d;--primary:#58a6ff;--primary-light:#1c2d44;--sidebar:#0d1117;--sidebar-text:#8b949e;--sidebar-active:#e6edf3;--sidebar-bg-active:#1f6feb;--shadow:0 2px 12px rgba(0,0,0,.3);--table-stripe:#161b22;--success:#3fb950;--danger:#f85149;--warning:#d29922;--info:#58a6ff}
@@ -20,6 +21,9 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .nav-item:hover{background:rgba(255,255,255,.08)}
 .nav-item.active{background:var(--sidebar-bg-active);color:var(--sidebar-active);font-weight:600}
 .nav-item i{width:20px;text-align:center;font-size:15px}
+.nav-item .nav-img{width:36px;height:36px;border-radius:8px;object-fit:cover;transition:all .3s ease;flex-shrink:0;border:2px solid transparent}
+.nav-item:hover .nav-img{transform:scale(1.15) rotate(-3deg);border-color:var(--primary);box-shadow:0 4px 15px rgba(26,115,232,.4)}
+.nav-item.active .nav-img{border-color:var(--primary);box-shadow:0 2px 10px rgba(26,115,232,.3)}
 .nav-item .nav-img{width:36px;height:36px;border-radius:8px;object-fit:cover;transition:all .3s ease;flex-shrink:0;border:2px solid transparent}
 .nav-item:hover .nav-img{transform:scale(1.15) rotate(-3deg);border-color:var(--primary);box-shadow:0 4px 15px rgba(26,115,232,.4)}
 .nav-item.active .nav-img{border-color:var(--primary);box-shadow:0 2px 10px rgba(26,115,232,.3)}
@@ -57,6 +61,10 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .col-filter-row input,.col-filter-row select{width:100%;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:var(--card);color:var(--text);box-sizing:border-box}
 .col-filter-row input:focus,.col-filter-row select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,115,232,.15)}
 .col-filter-row select{max-height:28px;cursor:pointer}
+.module-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:15px;margin-top:15px}
+.module-charts .card-box{padding:15px}
+.module-charts canvas{max-height:300px}
+.chart-actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
 .badge-protected{background:var(--danger);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;margin-right:5px}
 .badge-editor{background:var(--success);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px}
 .badge-viewer{background:var(--info);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px}
@@ -123,29 +131,14 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div class="nav-section">لوحة التحكم</div>
 <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard"><i class="fas fa-chart-pie"></i><span>الرئيسية</span></div>
 <div class="nav-item" onclick="showPage('analytics')" data-page="analytics"><i class="fas fa-chart-bar"></i><span>التحليلات والإحصائيات</span></div>
-<div class="nav-section">📦 المخزن</div>
-<div class="nav-item" onclick="showModule('inventory_items')" data-page="mod-inventory_items"><i class="fas fa-boxes"></i><span>دليل الأصناف</span></div>
-<div class="nav-item" onclick="showModule('inventory_out')" data-page="mod-inventory_out"><i class="fas fa-arrow-up"></i><span>منصرف (مبيعات)</span></div>
-<div class="nav-item" onclick="showModule('inventory_in')" data-page="mod-inventory_in"><i class="fas fa-arrow-down"></i><span>وارد (مدخلات)</span></div>
-<div class="nav-item" onclick="showModule('inventory_ledger')" data-page="mod-inventory_ledger"><i class="fas fa-book"></i><span>دفتر الأصناف</span></div>
-<div class="nav-section">🧾 المبيعات</div>
-<div class="nav-item" onclick="showModule('sales_invoices')" data-page="mod-sales_invoices"><i class="fas fa-file-invoice-dollar"></i><span>فواتير المبيعات</span></div>
-<div class="nav-section">🔧 الصيانة</div>
-<div class="nav-item" onclick="showModule('maintenance')" data-page="mod-maintenance"><i class="fas fa-wrench"></i><span>الصيانة</span></div>
-<div class="nav-section">🛡️ التأمين</div>
-<div class="nav-item" onclick="showModule('insurance_axa')" data-page="mod-insurance_axa"><i class="fas fa-shield-alt"></i><span>وثائق أكسا</span></div>
-<div class="nav-item" onclick="showModule('insurance_orient')" data-page="mod-insurance_orient"><i class="fas fa-shield-alt"></i><span>وثائق أورينت</span></div>
 <div class="nav-section">🚗 التشغيل</div>
-<div class="nav-item" onclick="showModule('operations')" data-page="mod-operations"><img src="static/data/operations.jpeg" class="nav-img" alt="التشغيل" onerror="this.style.display='none'"><i class="fas fa-car"></i><span>التشغيل</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-section">💰 الخزنة والبنوك</div>
-<div class="nav-item" onclick="showModule('treasury_main')" data-page="mod-treasury_main"><i class="fas fa-money-bill-wave"></i><span>العهد</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('treasury_salaf')" data-page="mod-treasury_salaf"><i class="fas fa-hand-holding-usd"></i><span>السلف</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('treasury_fuel')" data-page="mod-treasury_fuel"><i class="fas fa-gas-pump"></i><span>عهد البنزين</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('treasury_maintenance')" data-page="mod-treasury_maintenance"><i class="fas fa-tools"></i><span>عهدة صيانة</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('treasury_payments')" data-page="mod-treasury_payments"><i class="fas fa-credit-card"></i><span>دفعات تحت الحساب</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('bank_qnb_az')" data-page="mod-bank_qnb_az"><i class="fas fa-university"></i><span>حساب AZ - QNB</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('bank_qnb_asala')" data-page="mod-bank_qnb_asala"><i class="fas fa-university"></i><span>حساب الأصالة - QNB</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
-<div class="nav-item" onclick="showModule('bank_treasury')" data-page="mod-bank_treasury"><i class="fas fa-landmark"></i><span>الخزنة</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
+<div class="nav-item" onclick="showModule('operations')" data-page="mod-operations"><img src="static/data/operations.jpeg" class="nav-img" alt="التشغيل" onerror="this.style.display='none'"><i class="fas fa-car"></i><span>التشغيل</span></div>
+<div class="nav-section">💰 الخزنة</div>
+<div class="nav-item" onclick="showModule('treasury_main')" data-page="mod-treasury_main"><img src="static/data/treasury_main.jpeg" class="nav-img" alt="العهد" onerror="this.style.display='none'"><i class="fas fa-money-bill-wave"></i><span>العهد</span></div>
+<div class="nav-item" onclick="showModule('treasury_salaf')" data-page="mod-treasury_salaf"><i class="fas fa-hand-holding-usd"></i><span>السلف</span></div>
+<div class="nav-item" onclick="showModule('treasury_fuel')" data-page="mod-treasury_fuel"><i class="fas fa-gas-pump"></i><span>عهد البنزين</span></div>
+<div class="nav-item" onclick="showModule('treasury_maintenance')" data-page="mod-treasury_maintenance"><i class="fas fa-tools"></i><span>عهدة صيانة</span></div>
+<div class="nav-item" onclick="showModule('treasury_payments')" data-page="mod-treasury_payments"><i class="fas fa-credit-card"></i><span>دفعات تحت الحساب</span></div>
 <div class="nav-section" id="adminNavSection">⚙️ الإدارة</div>
 <div class="nav-item" onclick="showPage('users')" data-page="users" id="adminUsersNav"><i class="fas fa-users-cog"></i><span>إدارة المستخدمين</span></div>
 <div class="nav-item" onclick="showPage('audit')" data-page="audit" id="adminAuditNav"><i class="fas fa-history"></i><span>سجل العمليات</span></div>
@@ -226,6 +219,18 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div class="card-box">
 <div class="table-container"><table class="data-table" id="moduleTable"><thead id="moduleHead"></thead><tbody id="moduleBody"></tbody></table></div>
 <div class="pagination" id="modulePagination"></div>
+</div>
+<div class="module-charts" id="moduleCharts">
+<div class="card-box">
+<h5>📊 توزيع البيانات</h5>
+<div class="chart-container" style="height:300px"><canvas id="modChart1"></canvas></div>
+<div class="chart-actions"><button class="btn btn-sm btn-primary" onclick="downloadChartPDF('modChart1')">📄 تحميل PDF</button></div>
+</div>
+<div class="card-box">
+<h5>📈 تحليل شهري</h5>
+<div class="chart-container" style="height:300px"><canvas id="modChart2"></canvas></div>
+<div class="chart-actions"><button class="btn btn-sm btn-primary" onclick="downloadChartPDF('modChart2')">📄 تحميل PDF</button></div>
+</div>
 </div>
 </div>
 
@@ -412,6 +417,37 @@ return dataCache[name];
 
 // ==================== DASHBOARD ====================
 async function loadDashboard() {
+const mods = ['operations','treasury_main','treasury_salaf','treasury_fuel','treasury_maintenance','treasury_payments'];
+const counts = {};
+for(const m of mods) { counts[m] = (await loadData(m)).length; }
+const cards = document.getElementById('statsCards'); cards.innerHTML = '';
+const groups = [
+{icon:'🚗',label:'التشغيل',keys:['operations']},
+{icon:'💰',label:'العهد',keys:['treasury_main']},
+{icon:'🤝',label:'السلف',keys:['treasury_salaf']},
+{icon:'⛽',label:'عهد البنزين',keys:['treasury_fuel']},
+{icon:'🔧',label:'عهدة صيانة',keys:['treasury_maintenance']},
+{icon:'💳',label:'دفعات تحت الحساب',keys:['treasury_payments']}
+];
+groups.forEach(g => {
+const total = g.keys.reduce((s,k)=>s+(counts[k]||0),0);
+if(total === 0) return;
+const div = document.createElement('div'); div.className='card-box stat-card';
+div.innerHTML = `<div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
+div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
+cards.appendChild(div);
+});
+const palette=['#1a73e8','#ff6b35','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#e83e8c','#20c997','#fd7e14'];
+const ag = groups.filter(g=>g.keys.reduce((s,k)=>s+(counts[k]||0),0)>0);
+destroyChart('summaryChart');
+charts.summaryChart = new Chart(document.getElementById('summaryChart'),{type:'bar',data:{labels:ag.map(g=>g.label),datasets:[{label:'السجلات',data:ag.map(g=>g.keys.reduce((s,k)=>s+(counts[k]||0),0)),backgroundColor:palette,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+const opsData = await loadData('operations');
+if(opsData.length){const m={};opsData.forEach(r=>{const d=r['بداية التشغيلة']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+1;}});const ml=Object.keys(m).sort().slice(-12),mv=ml.map(k=>m[k]);destroyChart('salesChart');charts.salesChart=new Chart(document.getElementById('salesChart'),{type:'line',data:{labels:ml,datasets:[{label:'عدد التشغيلات',data:mv,borderColor:'#1a73e8',backgroundColor:'rgba(26,115,232,.1)',fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false}});}
+const fuelData = await loadData('treasury_fuel');
+if(fuelData.length){const t={};fuelData.forEach(r=>{const x=r['اسم السواق']||'أخرى';t[x]=(t[x]||0)+(Math.abs(parseFloat(r['مدين']))||0);});const s=Object.entries(t).sort((a,b)=>b[1]-a[1]).slice(0,10);destroyChart('fleetChart');charts.fleetChart=new Chart(document.getElementById('fleetChart'),{type:'doughnut',data:{labels:s.map(x=>x[0]),datasets:[{data:s.map(x=>x[1]),backgroundColor:palette}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});}
+const maintData = await loadData('treasury_maintenance');
+if(maintData.length){const m={};maintData.forEach(r=>{const d=r['التاريخ']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+(parseFloat(r['الاجمالي'])||0);}});const ml=Object.keys(m).sort().slice(-12),mv=ml.map(k=>m[k]);destroyChart('maintChart');charts.maintChart=new Chart(document.getElementById('maintChart'),{type:'bar',data:{labels:ml,datasets:[{label:'تكاليف الصيانة',data:mv,backgroundColor:'#ff6b35',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false}});}
+}sync function loadDashboard() {
 const mods = ['inventory_items','inventory_out','inventory_in','sales_invoices','maintenance','operations','treasury_main','insurance_axa','insurance_orient','treasury_fuel','bank_qnb_az','bank_qnb_asala'];
 const counts = {};
 for(const m of mods) { counts[m] = (await loadData(m)).length; }
@@ -466,6 +502,7 @@ return cellVal.includes(fv.toLowerCase());
 });
 if(sortState.col){const c=sortState.col,d=sortState.dir;try{filteredData.sort((a,b)=>{const va=parseFloat(a[c])||0,vb=parseFloat(b[c])||0;return d==='asc'?va-vb:vb-va;});}catch{filteredData.sort((a,b)=>d==='asc'?String(a[c]||'').localeCompare(String(b[c]||'')):String(b[c]||'').localeCompare(String(a[c]||'')));}}
 currentPage=1;renderModule();
+loadModuleCharts();
 }
 
 function onColumnFilter(col, value) {
@@ -708,6 +745,51 @@ saveBtn.onclick = submitAddRecord;
 f.parentElement.querySelector('h4').innerHTML = '➕ إضافة سجل جديد';
 };
 document.getElementById('addModal').classList.remove('hidden');
+}
+
+// ==================== MODULE CHARTS ====================
+function loadModuleCharts() {
+if (!filteredData.length || filteredData.length < 2) {
+document.getElementById('moduleCharts').style.display = 'none';
+return;
+}
+document.getElementById('moduleCharts').style.display = '';
+const palette = ['#1a73e8','#ff6b35','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#e83e8c','#20c997','#fd7e14'];
+const numCols = currentColumns.filter(c => filteredData.some(r => r[c] && !isNaN(parseFloat(r[c])) && parseFloat(r[c]) !== 0));
+const dateCols = currentColumns.filter(c => filteredData.some(r => r[c] && /^\d{4}-\d{2}/.test(r[c])));
+const catCols = currentColumns.filter(c => { const v = new Set(filteredData.map(r => r[c]).filter(Boolean)); return v.size > 1 && v.size < 30 && !numCols.includes(c); });
+const valCol = numCols.find(c => ['مبلغ','الاجمالي','الصافي','مدين','داين','اجمالي داين','اجمالي مدين'].some(k => c.includes(k))) || numCols[0] || '';
+const catCol = catCols.find(c => ['نوع المصروف','الاسم','بيان','بيان وارد','بيان منصرف','اسم السواق','اسم العميل','الحالة','فاتورة'].some(k => c.includes(k))) || catCols[0] || '';
+const dateCol = dateCols[0] || '';
+if (catCol) {
+const g = {}; filteredData.forEach(r => { const k = r[catCol] || 'أخرى'; g[k] = (g[k]||0) + (valCol ? Math.abs(parseFloat(r[valCol]))||1 : 1); });
+const sorted = Object.entries(g).sort((a,b)=>b[1]-a[1]).slice(0,10);
+destroyChart('modChart1'); charts.modChart1 = new Chart(document.getElementById('modChart1'), {type:'doughnut',data:{labels:sorted.map(x=>x[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:palette}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}}}}});
+document.getElementById('modChart1').parentElement.previousElementSibling.textContent = `📊 توزيع حسب ${catCol}`;
+}
+if (dateCol && valCol) {
+const g = {}; filteredData.forEach(r => { const d = r[dateCol]; if (!d || d.length < 7) return; const k = d.substring(0,7); g[k] = (g[k]||0) + (Math.abs(parseFloat(r[valCol]))||0); });
+const labels = Object.keys(g).sort().slice(-24); const values = labels.map(k=>g[k]);
+destroyChart('modChart2'); charts.modChart2 = new Chart(document.getElementById('modChart2'), {type:'line',data:{labels,datasets:[{label:valCol,data:values,borderColor:'#1a73e8',backgroundColor:'rgba(26,115,232,.1)',fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+document.getElementById('modChart2').parentElement.previousElementSibling.textContent = `📈 تطور ${valCol} شهرياً`;
+} else if (dateCol) {
+const g = {}; filteredData.forEach(r => { const d = r[dateCol]; if (!d || d.length < 7) return; const k = d.substring(0,7); g[k] = (g[k]||0)+1; });
+const labels = Object.keys(g).sort().slice(-24); const values = labels.map(k=>g[k]);
+destroyChart('modChart2'); charts.modChart2 = new Chart(document.getElementById('modChart2'), {type:'bar',data:{labels,datasets:[{label:'العدد',data:values,backgroundColor:'#ff6b35',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false}});
+}
+}
+function downloadChartPDF(canvasId) {
+try {
+const { jsPDF } = window.jspdf;
+const canvas = document.getElementById(canvasId);
+const imgData = canvas.toDataURL('image/png', 1.0);
+const pdf = new jsPDF('landscape', 'mm', 'a4');
+const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+const imgW = pw - 20, imgH = (canvas.height / canvas.width) * imgW;
+pdf.addImage(imgData, 'PNG', 10, Math.max(10, (ph - imgH) / 2), imgW, Math.min(imgH, ph - 20));
+pdf.save(`${currentModule}_${canvasId}.pdf`);
+showToast('✅ تم تحميل PDF');
+} catch(e) { showToast('❌ خطأ في تحميل PDF', true); }
 }
 </script>
 </body>
