@@ -33,11 +33,15 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .stat-card .icon{font-size:32px;margin-bottom:10px}
 .stat-card .num{font-size:28px;font-weight:800;color:var(--primary)}
 .stat-card .label{font-size:13px;color:var(--text2);margin-top:5px}
-.table-container{overflow-x:auto;margin-top:15px}
-.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.table-container{overflow-x:auto;margin-top:15px;overflow-y:auto;max-height:70vh;-webkit-overflow-scrolling:touch}
+.table-container::-webkit-scrollbar{height:10px}
+.table-container::-webkit-scrollbar-track{background:var(--border);border-radius:5px}
+.table-container::-webkit-scrollbar-thumb{background:var(--primary);border-radius:5px}
+.table-container::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+.data-table{width:max-content;min-width:100%;border-collapse:collapse;font-size:13px}
 .data-table th{background:var(--primary);color:#fff;padding:10px 12px;text-align:right;position:sticky;top:0;z-index:10;cursor:pointer;white-space:nowrap;user-select:none}
 .data-table th:hover{background:var(--accent)}
-.data-table td{padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.data-table td{padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
 .data-table tr:nth-child(even){background:var(--table-stripe)}
 .data-table tr:hover{background:var(--primary-light)}
 .pagination{display:flex;gap:5px;justify-content:center;margin-top:15px;flex-wrap:wrap}
@@ -505,8 +509,8 @@ return `<th><input type="text" placeholder="فلتر..." value="${curVal.replace
 document.getElementById('moduleHead').innerHTML = headHtml;
 
 document.getElementById('moduleBody').innerHTML = pageData.length ? pageData.map((row,idx)=>{
-const globalIdx = start + idx;
-return '<tr>'+currentColumns.map(c=>`<td title="${(row[c]||'').toString().replace(/"/g,'&quot;')}">${row[c]||''}</td>`).join('')+(canEdit2?`<td><button class="btn btn-sm btn-outline-primary" onclick="editRecord(${globalIdx})" title="تعديل"><i class="fas fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${globalIdx})" title="حذف"><i class="fas fa-trash"></i></button></td>`:'')+'</tr>';
+const origIdx = allModuleData.indexOf(row);
+return '<tr>'+currentColumns.map(c=>`<td title="${(row[c]||'').toString().replace(/"/g,'&quot;')}">${row[c]||''}</td>`).join('')+(canEdit2?`<td><button class="btn btn-sm btn-outline-primary" onclick="editRecord(${origIdx})" title="تعديل"><i class="fas fa-pen"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord(${origIdx})" title="حذف"><i class="fas fa-trash"></i></button></td>`:'')+'</tr>';
 }).join('') : `<tr><td colspan="${currentColumns.length}" style="text-align:center;padding:30px;color:var(--text2)">لا توجد بيانات</td></tr>`;
 
 const pg = document.getElementById('modulePagination');
