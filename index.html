@@ -471,41 +471,6 @@ const maintData = await loadData('treasury_maintenance');
 if(maintData.length){const m={};maintData.forEach(r=>{const d=r['التاريخ']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+(parseFloat(r['الاجمالي'])||0);}});const ml=Object.keys(m).sort().slice(-12),mv=ml.map(k=>m[k]);destroyChart('maintChart');charts.maintChart=new Chart(document.getElementById('maintChart'),{type:'bar',data:{labels:ml,datasets:[{label:'تكاليف الصيانة',data:mv,backgroundColor:'#ff6b35',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false}});}
 }
 
-sync function loadDashboard() {
-const mods = ['inventory_items','inventory_out','inventory_in','sales_invoices','maintenance','operations','treasury_main','insurance_axa','insurance_orient','treasury_fuel','bank_qnb_az','bank_qnb_asala'];
-const counts = {};
-for(const m of mods) { counts[m] = (await loadData(m)).length; }
-
-const cards = document.getElementById('statsCards'); cards.innerHTML = '';
-const groups = [
-{icon:'📦',label:'الأصناف',keys:['inventory_items']},{icon:'📤',label:'منصرف',keys:['inventory_out']},
-{icon:'📥',label:'وارد',keys:['inventory_in']},{icon:'🧾',label:'فواتير المبيعات',keys:['sales_invoices']},
-{icon:'🔧',label:'الصيانة',keys:['maintenance']},{icon:'🚗',label:'التشغيل',keys:['operations'],img:'operations.jpeg'},
-{icon:'💰',label:'العهد',keys:['treasury_main'],img:'treasury_main.jpeg'},{icon:'🛡️',label:'التأمين',keys:['insurance_axa','insurance_orient']},
-{icon:'🏦',label:'البنوك',keys:['bank_qnb_az','bank_qnb_asala']},{icon:'⛽',label:'البنزين',keys:['treasury_fuel']}
-];
-groups.forEach(g => {
-const total = g.keys.reduce((s,k)=>s+(counts[k]||0),0);
-const div = document.createElement('div'); div.className='card-box stat-card';
-div.innerHTML = `${g.img ? `<img src="static/data/${g.img}" style="width:48px;height:48px;border-radius:10px;object-fit:cover;margin-bottom:8px" onerror="this.outerHTML='<div class=icon>${g.icon}</div>'">` : `<div class="icon">${g.icon}</div>`}<div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div>`;
-div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
-cards.appendChild(div);
-});
-
-// Charts
-const palette=['#1a73e8','#ff6b35','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#e83e8c','#20c997','#fd7e14'];
-destroyChart('summaryChart');
-charts.summaryChart = new Chart(document.getElementById('summaryChart'),{type:'bar',data:{labels:groups.map(g=>g.label),datasets:[{label:'السجلات',data:groups.map(g=>g.keys.reduce((s,k)=>s+(counts[k]||0),0)),backgroundColor:palette,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-
-const salesData = await loadData('sales_invoices');
-if(salesData.length){const m={};salesData.forEach(r=>{const d=r['التاريخ']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+(parseFloat(r['القيمه بعد الضريبه']||r['الصافي']||0)||0);}});const ml=Object.keys(m).sort(),mv=ml.map(k=>m[k]);destroyChart('salesChart');charts.salesChart=new Chart(document.getElementById('salesChart'),{type:'line',data:{labels:ml,datasets:[{label:'المبيعات',data:mv,borderColor:'#1a73e8',backgroundColor:'rgba(26,115,232,.1)',fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false}});}
-
-const opsData = await loadData('operations');
-if(opsData.length){const t={};opsData.forEach(r=>{const x=r['النوع']||r['نوعها']||'أخرى';t[x]=(t[x]||0)+1;});const s=Object.entries(t).sort((a,b)=>b[1]-a[1]).slice(0,10);destroyChart('fleetChart');charts.fleetChart=new Chart(document.getElementById('fleetChart'),{type:'doughnut',data:{labels:s.map(x=>x[0]),datasets:[{data:s.map(x=>x[1]),backgroundColor:palette}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});}
-
-const mData = await loadData('maintenance');
-if(mData.length){const m={};mData.forEach(r=>{const d=r['تاريخ']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+(parseFloat(r['اجمالي صيانة']||0)||0);}});const ml=Object.keys(m).sort().slice(-12),mv=ml.map(k=>m[k]);destroyChart('maintChart');charts.maintChart=new Chart(document.getElementById('maintChart'),{type:'bar',data:{labels:ml,datasets:[{label:'تكاليف الصيانة',data:mv,backgroundColor:'#ff6b35',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false}});}
-}
 
 // ==================== MODULE DATA ====================
 async function loadModuleData() {
