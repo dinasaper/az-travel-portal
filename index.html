@@ -463,6 +463,9 @@ div.innerHTML = `<img src="static/data/${g.img}" class="stat-bg" onerror="this.s
 } else {
 div.innerHTML = `<div class="stat-overlay"><div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div></div>`;
 }
+} else {
+div.innerHTML = `<div class="stat-overlay"><div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div></div>`;
+}
 div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
 cards.appendChild(div);
 });
@@ -476,7 +479,6 @@ const fuelData = await loadData('treasury_fuel');
 if(fuelData.length){const t={};fuelData.forEach(r=>{const x=r['اسم السواق']||'أخرى';t[x]=(t[x]||0)+(Math.abs(parseFloat(r['مدين']))||0);});const s=Object.entries(t).sort((a,b)=>b[1]-a[1]).slice(0,10);destroyChart('fleetChart');charts.fleetChart=new Chart(document.getElementById('fleetChart'),{type:'doughnut',data:{labels:s.map(x=>x[0]),datasets:[{data:s.map(x=>x[1]),backgroundColor:palette}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}}}});}
 const maintData = await loadData('treasury_maintenance');
 if(maintData.length){const m={};maintData.forEach(r=>{const d=r['التاريخ']||'';if(d.length>=7){const k=d.substring(0,7);m[k]=(m[k]||0)+(parseFloat(r['الاجمالي'])||0);}});const ml=Object.keys(m).sort().slice(-12),mv=ml.map(k=>m[k]);destroyChart('maintChart');charts.maintChart=new Chart(document.getElementById('maintChart'),{type:'bar',data:{labels:ml,datasets:[{label:'تكاليف الصيانة',data:mv,backgroundColor:'#ff6b35',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false}});}
-}
 
 
 // ==================== MODULE DATA ====================
