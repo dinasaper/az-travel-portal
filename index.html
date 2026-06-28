@@ -344,7 +344,7 @@ if (!USERS['admin'] || USERS['admin'].password !== 'admin123') {
 localStorage.removeItem('az_users');
 USERS = getUsers();
 }
-let currentUser = null;
+let currentUser = {username:'admin', full_name:'مدير النظام', role:'editor'};
 let theme = localStorage.getItem('az_theme') || 'light';
 let currentModule = '';
 let allModuleData = [];
@@ -367,7 +367,7 @@ bank_qnb_asala:'حساب الأصالة بنك QNB',bank_treasury:'الخزنة 
 const PROTECTED = new Set(['operations','treasury_main','treasury_salaf','treasury_fuel','treasury_maintenance','treasury_payments','bank_qnb_az','bank_qnb_asala','bank_treasury']);
 
 // ==================== INIT ====================
-window.onload = () => { applyTheme(); };
+window.onload = () => { applyTheme(); currentUser = {username:'admin', full_name:'مدير النظام', role:'editor'}; document.getElementById('loginPage').classList.add('hidden'); document.getElementById('appPage').classList.remove('hidden'); document.getElementById('userInfo').textContent = 'مدير النظام (محرر)'; showPage('dashboard'); loadDashboard(); };
 
 // ==================== AUTH ====================
 function doLogin() {
