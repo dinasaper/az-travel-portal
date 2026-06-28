@@ -20,6 +20,9 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .nav-item:hover{background:rgba(255,255,255,.08)}
 .nav-item.active{background:var(--sidebar-bg-active);color:var(--sidebar-active);font-weight:600}
 .nav-item i{width:20px;text-align:center;font-size:15px}
+.nav-item .nav-img{width:36px;height:36px;border-radius:8px;object-fit:cover;transition:all .3s ease;flex-shrink:0;border:2px solid transparent}
+.nav-item:hover .nav-img{transform:scale(1.15) rotate(-3deg);border-color:var(--primary);box-shadow:0 4px 15px rgba(26,115,232,.4)}
+.nav-item.active .nav-img{border-color:var(--primary);box-shadow:0 2px 10px rgba(26,115,232,.3)}
 .nav-section{padding:15px 20px 5px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-top:10px}
 .main{margin-right:260px;padding:20px 30px;min-height:100vh;transition:all .3s}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;flex-wrap:wrap;gap:10px}
@@ -133,7 +136,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div class="nav-item" onclick="showModule('insurance_axa')" data-page="mod-insurance_axa"><i class="fas fa-shield-alt"></i><span>وثائق أكسا</span></div>
 <div class="nav-item" onclick="showModule('insurance_orient')" data-page="mod-insurance_orient"><i class="fas fa-shield-alt"></i><span>وثائق أورينت</span></div>
 <div class="nav-section">🚗 التشغيل</div>
-<div class="nav-item" onclick="showModule('operations')" data-page="mod-operations"><i class="fas fa-car"></i><span>التشغيل</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
+<div class="nav-item" onclick="showModule('operations')" data-page="mod-operations"><img src="static/data/operations.jpeg" class="nav-img" alt="التشغيل" onerror="this.style.display='none'"><i class="fas fa-car"></i><span>التشغيل</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
 <div class="nav-section">💰 الخزنة والبنوك</div>
 <div class="nav-item" onclick="showModule('treasury_main')" data-page="mod-treasury_main"><i class="fas fa-money-bill-wave"></i><span>العهد</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
 <div class="nav-item" onclick="showModule('treasury_salaf')" data-page="mod-treasury_salaf"><i class="fas fa-hand-holding-usd"></i><span>السلف</span><i class="fas fa-lock" style="font-size:10px;color:var(--danger)"></i></div>
