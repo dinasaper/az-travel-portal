@@ -12,7 +12,7 @@
 :root{--bg:#f5f7fa;--card:#fff;--text:#1a1a2e;--text2:#555;--border:#e0e0e0;--primary:#1a73e8;--primary-light:#e8f0fe;--accent:#ff6b35;--sidebar:#1a1a2e;--sidebar-text:#b0b0c0;--sidebar-active:#fff;--sidebar-bg-active:#1a73e8;--shadow:0 2px 12px rgba(0,0,0,.08);--table-stripe:#f8f9fa;--success:#28a745;--danger:#dc3545;--warning:#ffc107;--info:#17a2b8}
 [data-theme="dark"]{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--text2:#8b949e;--border:#30363d;--primary:#58a6ff;--primary-light:#1c2d44;--sidebar:#0d1117;--sidebar-text:#8b949e;--sidebar-active:#e6edf3;--sidebar-bg-active:#1f6feb;--shadow:0 2px 12px rgba(0,0,0,.3);--table-stripe:#161b22;--success:#3fb950;--danger:#f85149;--warning:#d29922;--info:#58a6ff}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);transition:all .3s}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);transition:all .3s;overflow:hidden;height:100vh}
 .sidebar{position:fixed;top:0;right:0;width:260px;height:100vh;background:var(--sidebar);color:var(--sidebar-text);z-index:1000;overflow-y:auto;transition:all .3s;box-shadow:var(--shadow)}
 .sidebar-logo{padding:20px;text-align:center;border-bottom:1px solid rgba(255,255,255,.1)}
 .sidebar-logo img{max-height:60px;max-width:180px}
@@ -25,7 +25,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .nav-item:hover .nav-img{transform:scale(1.15) rotate(-3deg);border-color:var(--primary);box-shadow:0 4px 15px rgba(26,115,232,.4)}
 .nav-item.active .nav-img{border-color:var(--primary);box-shadow:0 2px 10px rgba(26,115,232,.3)}
 .nav-section{padding:15px 20px 5px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.3);margin-top:10px}
-.main{margin-right:260px;padding:20px 30px;min-height:100vh;transition:all .3s}
+.main{margin-right:260px;padding:20px 30px;height:100vh;overflow-y:auto;transition:all .3s}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;flex-wrap:wrap;gap:10px}
 .topbar h2{font-size:22px;font-weight:700}
 .topbar-actions{display:flex;gap:10px;align-items:center}
