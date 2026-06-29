@@ -101,7 +101,7 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 .info-bar span{background:var(--primary-light);padding:4px 10px;border-radius:6px}
 .contact-info{font-size:12px;color:var(--sidebar-text);padding:15px 20px;border-top:1px solid rgba(255,255,255,.1);line-height:1.8}
 @media(max-width:768px){.sidebar{width:0;transform:translateX(100%)}.sidebar.open{width:260px;transform:translateX(0)}.main{margin-right:0}.chart-row{grid-template-columns:1fr}.menu-toggle{display:block!important}}
-.menu-toggle{display:none;position:fixed;top:15px;right:15px;z-index:1100;background:var(--primary);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer}
+.menu-toggle{display:none;position:fixed;top:15px;left:15px;z-index:1100;background:var(--primary);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -435,17 +435,24 @@ return dataCache[name];
 
 // ==================== DASHBOARD ====================
 async function loadDashboard() {
-const mods = ['operations','treasury_main','treasury_salaf','treasury_fuel','treasury_maintenance','treasury_payments'];
+const mods = ['operations','treasury_main','treasury_salaf','treasury_fuel','treasury_maintenance','treasury_payments','inventory_items','inventory_out','inventory_in','sales_invoices','maintenance','insurance_axa','insurance_orient','bank_qnb_az','bank_qnb_asala','bank_treasury'];
 const counts = {};
 for(const m of mods) { counts[m] = (await loadData(m)).length; }
 const cards = document.getElementById('statsCards'); cards.innerHTML = '';
 const groups = [
-{icon:'🚗',label:'التشغيل',keys:['operations'],img:'operations.jpeg'},
-{icon:'💰',label:'العهد',keys:['treasury_main'],img:'treasury_main.jpeg'},
-{icon:'🤝',label:'السلف',keys:['treasury_salaf'],img:'treasury_main.jpeg'},
-{icon:'⛽',label:'عهد البنزين',keys:['treasury_fuel'],img:'treasury_main.jpeg'},
-{icon:'🔧',label:'عهدة صيانة',keys:['treasury_maintenance'],img:'maintenance.jpeg'},
-{icon:'💳',label:'دفعات تحت الحساب',keys:['treasury_payments'],img:'treasury_main.jpeg'}
+{icon:'📦',label:'المخزن',keys:['inventory_items','inventory_out','inventory_in'],img:'inventory.jpeg',mod:'inventory_items'},
+{icon:'🧾',label:'المبيعات',keys:['sales_invoices'],img:'sales.jpeg',mod:'sales_invoices'},
+{icon:'🔧',label:'الصيانة',keys:['maintenance'],img:'maintenance.jpeg',mod:'maintenance'},
+{icon:'🛡️',label:'تأمين أكسا',keys:['insurance_axa'],img:'insurance_axa.png',mod:'insurance_axa'},
+{icon:'🛡️',label:'تأمين أورينت',keys:['insurance_orient'],img:'insurance_orient.jpeg',mod:'insurance_orient'},
+{icon:'🚗',label:'التشغيل',keys:['operations'],img:'operations.jpeg',mod:'operations'},
+{icon:'💰',label:'الخزنة - العهد',keys:['treasury_main'],img:'treasury_main.jpeg',mod:'treasury_main'},
+{icon:'🤝',label:'السلف',keys:['treasury_salaf'],img:'treasury_main.jpeg',mod:'treasury_salaf'},
+{icon:'⛽',label:'عهد البنزين',keys:['treasury_fuel'],img:'treasury_main.jpeg',mod:'treasury_fuel'},
+{icon:'💳',label:'دفعات تحت الحساب',keys:['treasury_payments'],img:'treasury_main.jpeg',mod:'treasury_payments'},
+{icon:'🏦',label:'بنك QNB - AZ',keys:['bank_qnb_az'],img:'banks.jpeg',mod:'bank_qnb_az'},
+{icon:'🏦',label:'بنك QNB - الأصالة',keys:['bank_qnb_asala'],img:'banks.jpeg',mod:'bank_qnb_asala'},
+{icon:'🏦',label:'الخزنة (بنوك)',keys:['bank_treasury'],img:'banks.jpeg',mod:'bank_treasury'}
 ];
 groups.forEach(g => {
 const total = g.keys.reduce((s,k)=>s+(counts[k]||0),0);
@@ -456,7 +463,7 @@ div.innerHTML = `<img src="static/data/${g.img}" class="stat-bg" onerror="this.s
 } else {
 div.innerHTML = `<div class="stat-overlay"><div class="icon">${g.icon}</div><div class="num">${total.toLocaleString()}</div><div class="label">${g.label}</div></div>`;
 }
-div.onclick = () => { if(g.keys.length===1) showModule(g.keys[0]); };
+div.onclick = () => showModule(g.mod || g.keys[0]);
 cards.appendChild(div);
 });
 const palette=['#1a73e8','#ff6b35','#28a745','#ffc107','#dc3545','#17a2b8','#6f42c1','#e83e8c','#20c997','#fd7e14'];
