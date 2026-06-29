@@ -745,9 +745,10 @@ body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:v
 <div class="search-box">
 <select id="modulePerPage" onchange="renderModule()"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option></select>
 <button class="btn btn-primary" onclick="exportCSV()">📥 تصدير CSV</button>
-<button class="btn btn-success" id="addRecordBtn" onclick="showAddModal()" style="display:none">➕ إضافة سجل</button>
 <button class="btn btn-warning" onclick="clearAllFilters()">🗑️ مسح الفلاتر</button>
 <button class="btn btn-success" id="addRecordBtn" onclick="showAddModal()" style="display:none">➕ إضافة سجل</button>
+<button class="btn btn-outline" id="addColBtn" onclick="addColumn()" style="display:none">➕ إضافة عمود</button>
+<button class="btn btn-outline" id="delColBtn" onclick="deleteColumn()" style="display:none;color:var(--danger);border-color:var(--danger)">➖ مسح عمود</button>
 <button class="btn btn-outline" onclick="createNewTable()">📋 نسخة جديدة فارغة</button>
 </div>
 <div class="card-box">
@@ -910,6 +911,8 @@ document.getElementById('adminNavSection').style.display = 'none';
 document.getElementById('adminUsersNav').style.display = 'none';
 document.getElementById('adminAuditNav').style.display = 'none';
 document.getElementById('addRecordBtn').style.display = 'none';
+document.getElementById('addColBtn').style.display = 'none';
+document.getElementById('delColBtn').style.display = 'none';
 document.getElementById('logoutBtn').style.display = 'none';
 document.getElementById('loginBtn').style.display = '';
 showPage('dashboard');
@@ -944,6 +947,8 @@ if (currentUser.role === 'editor') {
 document.getElementById('adminNavSection').style.display = '';
 document.getElementById('adminUsersNav').style.display = '';
 document.getElementById('adminAuditNav').style.display = '';
+document.getElementById('addColBtn').style.display = '';
+document.getElementById('delColBtn').style.display = '';
 }
 logAudit('login', u);
 if (pendingAction) { pendingAction(); pendingAction = null; }
@@ -1485,6 +1490,36 @@ handleExcelFile(input);
 });
 }
 });
+
+
+// ==================== ADD/DELETE COLUMN ====================
+function addColumn() {
+requireLogin(() => {
+if (!currentModule || !currentColumns.length) return;
+const colName = prompt('اسم العمود الجديد:');
+if (!colName || currentColumns.includes(colName)) { if(colName) showToast('⚠️ العمود موجود بالفعل', true); return; }
+currentColumns.push(colName);
+allModuleData.forEach(r => { r[colName] = ''; });
+dataCache[currentModule] = allModuleData;
+applyFilter();
+showToast('✅ تم إضافة عمود: ' + colName);
+logAudit('add_column', currentUser.username, currentModule, colName);
+});
+}
+
+function deleteColumn() {
+requireLogin(() => {
+if (!currentModule || !currentColumns.length) return;
+const colName = prompt('اسم العمود المراد حذفه:\n' + currentColumns.join(', '));
+if (!colName || !currentColumns.includes(colName)) { if(colName) showToast('⚠️ العمود غير موجود', true); return; }
+if (!confirm('هل تريد حذف عمود "' + colName + '"؟')) return;
+currentColumns = currentColumns.filter(c => c !== colName);
+delete columnFilters[colName];
+applyFilter();
+showToast('🗑️ تم حذف عمود: ' + colName);
+logAudit('delete_column', currentUser.username, currentModule, colName);
+});
+}
 
 </script>
 
